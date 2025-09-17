@@ -88,6 +88,7 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
+            position: relative;
         }
 
         .logo {
@@ -104,6 +105,54 @@
         .nav-menu {
             list-style: none;
             display: flex;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            margin-left: auto;
+            border-radius: 4px;
+        }
+
+        .menu-toggle:focus-visible {
+            outline: 3px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        .menu-toggle-bar {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background-color: var(--text-dark);
+            margin: 5px 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .menu-toggle[aria-expanded="true"] .menu-toggle-bar:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .menu-toggle[aria-expanded="true"] .menu-toggle-bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle[aria-expanded="true"] .menu-toggle-bar:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         .nav-item {
@@ -291,7 +340,48 @@
         }
         
         @media (max-width: 768px) {
-            .nav-menu { display: none; }
+            .navbar {
+                flex-wrap: wrap;
+            }
+
+            .navbar nav {
+                width: 100%;
+            }
+
+            .menu-toggle {
+                display: inline-flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .nav-menu {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--light-bg);
+                box-shadow: var(--shadow);
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+                padding: 15px 0;
+                z-index: 999;
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .nav-item {
+                margin: 0;
+            }
+
+            .nav-link {
+                padding: 12px 20px;
+                display: block;
+            }
+
             .hero-title { font-size: 2.5rem; }
             .section-title, .sub-page-title { font-size: 2rem; }
             .founders-grid { flex-direction: column; align-items: center; }
@@ -304,8 +394,14 @@
     <header class="header">
         <div class="container navbar">
             <a href="#home" class="logo">合同会社せいぎょばん<span class="highlight">.</span></a>
+            <button class="menu-toggle" type="button" aria-label="メインメニュー" aria-controls="primary-navigation" aria-expanded="false">
+                <span class="sr-only">メニューを開閉</span>
+                <span class="menu-toggle-bar"></span>
+                <span class="menu-toggle-bar"></span>
+                <span class="menu-toggle-bar"></span>
+            </button>
             <nav>
-                <ul class="nav-menu">
+                <ul id="primary-navigation" class="nav-menu">
                     <li class="nav-item"><a href="#services" class="nav-link">事業内容</a></li>
                     <li class="nav-item"><a href="#event-details" class="nav-link">イベント</a></li>
                     <li class="nav-item"><a href="#founders" class="nav-link">創業者</a></li>
@@ -498,6 +594,40 @@
             <p>&copy; 2025 Godo Kaisha Seigyoban. All Rights Reserved.</p>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButton = document.querySelector('.menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (!toggleButton || !navMenu) {
+                return;
+            }
+
+            const navLinks = navMenu.querySelectorAll('.nav-link');
+
+            toggleButton.addEventListener('click', function () {
+                const isOpen = navMenu.classList.toggle('active');
+                toggleButton.setAttribute('aria-expanded', isOpen);
+            });
+
+            navLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth <= 768 && navMenu.classList.contains('active')) {
+                        navMenu.classList.remove('active');
+                        toggleButton.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 768 && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    toggleButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
